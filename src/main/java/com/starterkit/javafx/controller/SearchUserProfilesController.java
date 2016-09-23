@@ -1,22 +1,28 @@
 package com.starterkit.javafx.controller;
 
+import static com.starterkit.javafx.ApplicationProperties.BASE_BUNDLE_PATH;
+import static com.starterkit.javafx.ApplicationProperties.CONNECTION_WITH_DATABASE_FAILED_MESSAGE;
+import static com.starterkit.javafx.ApplicationProperties.EMPTY_TABLE_TEXT;
+import static com.starterkit.javafx.ApplicationProperties.ERROR_WINDOW_TITLE;
+import static com.starterkit.javafx.ApplicationProperties.FAILED_TO_DELETE_USER_MESSAGE;
+import static com.starterkit.javafx.ApplicationProperties.SUCCESS_WINDOW_TITLE;
+import static com.starterkit.javafx.ApplicationProperties.USER_DELETED_MESSAGE_PART1;
+import static com.starterkit.javafx.ApplicationProperties.USER_DELETED_MESSAGE_PART2;
+import static com.starterkit.javafx.ApplicationProperties.USER_PROFILE_CONTROLLER_FXML_PATH;
+import static com.starterkit.javafx.ApplicationProperties.USER_PROFILE_WINDOW_TITLE;
+
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.ResourceBundle;
 
-import org.apache.log4j.Logger;
-
 import com.starterkit.javafx.dataprovider.UsersDataProvider;
 import com.starterkit.javafx.dataprovider.data.UserVO;
 import com.starterkit.javafx.model.SearchUserProfiles;
 
-import javafx.beans.binding.Binding;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.concurrent.Task;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
@@ -32,11 +38,13 @@ import javafx.scene.layout.Pane;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
-import javafx.stage.WindowEvent;
 
+/**
+ * Controller for the user search screen.
+ * @author PWOJTKOW
+ */
 public class SearchUserProfilesController {
 
-	private static final Logger LOG = Logger.getLogger(PersonSearchController.class);
 
 	/**
 	 * Resource bundle loaded with this controller. JavaFX injects a resource
@@ -101,7 +109,7 @@ public class SearchUserProfilesController {
 
 	@FXML
 	private void initialize() {
-		//
+		
 		initializeResultTable();
 
 		userLogin.textProperty().bindBidirectional(model.loginProperty());
@@ -116,18 +124,21 @@ public class SearchUserProfilesController {
 	}
 
 	private void initializeResultTable() {
+		
 		userLoginColumn.setCellValueFactory(cellData -> new ReadOnlyStringWrapper(cellData.getValue().getLogin()));
 		firstNameColumn.setCellValueFactory(cellData -> new ReadOnlyStringWrapper(cellData.getValue().getName()));
 		lastNameColumn.setCellValueFactory(cellData -> new ReadOnlyStringWrapper(cellData.getValue().getSurname()));
 		emailColumn.setCellValueFactory(cellData -> new ReadOnlyStringWrapper(cellData.getValue().getEmail()));
 		
-		resultTable.setPlaceholder(new Label(resources.getString("table.emptyText")));
+		resultTable.setPlaceholder(new Label(resources.getString(EMPTY_TABLE_TEXT)));
 		
 	}
 
 	@FXML
 	private void searchButtonAction() {
+		
 		resultTable.getItems().clear();
+		
 		Task<Collection<UserVO>> searchingTask = new Task<Collection<UserVO>>() {
 
 			@Override
@@ -150,19 +161,19 @@ public class SearchUserProfilesController {
 			@Override
 			protected void failed() {
 				Alert alert = new Alert(AlertType.ERROR);
-				alert.setTitle("Error!");
+				alert.setTitle(ERROR_WINDOW_TITLE);
 				alert.setHeaderText(null);
-				alert.setContentText("Failed to connect with database");
+				alert.setContentText(CONNECTION_WITH_DATABASE_FAILED_MESSAGE);
 
 				alert.showAndWait();
 			}
 		};
+		
 		new Thread(searchingTask).start();
 	}
 
 	@FXML
 	private void deleteButtonAction() {
-		LOG.debug("'Delete' button clicked");
 		
 		Task<String> deletingTask = new Task<String>() {
 		String result = "";
@@ -174,12 +185,11 @@ public class SearchUserProfilesController {
 
 			@Override
 			protected void succeeded() {
-				LOG.debug("succeeded() for delete called");
 
 				Alert alert = new Alert(AlertType.INFORMATION);
-				alert.setTitle("Success!");
+				alert.setTitle(SUCCESS_WINDOW_TITLE);
 				alert.setHeaderText(null);
-				alert.setContentText("User with id: " + result + " has been deleted");
+				alert.setContentText(USER_DELETED_MESSAGE_PART1 + result + USER_DELETED_MESSAGE_PART2);
 
 				alert.showAndWait();
 			}
@@ -187,9 +197,9 @@ public class SearchUserProfilesController {
 			@Override
 			protected void failed() {
 				Alert alert = new Alert(AlertType.ERROR);
-				alert.setTitle("Error!");
+				alert.setTitle(ERROR_WINDOW_TITLE);
 				alert.setHeaderText(null);
-				alert.setContentText("Failed to delete user");
+				alert.setContentText(FAILED_TO_DELETE_USER_MESSAGE);
 
 				alert.showAndWait();
 			}
@@ -199,17 +209,17 @@ public class SearchUserProfilesController {
 
 	@FXML
 	private void editButtonAction() throws Exception {
-		LOG.debug("'Edit' button clicked");
-		
 			
-			FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/starterkit/javafx/view/user-profile-window.fxml"),//
-					ResourceBundle.getBundle("com/starterkit/javafx/bundle/base"));
+			FXMLLoader loader = new FXMLLoader(getClass().getResource(USER_PROFILE_CONTROLLER_FXML_PATH),//
+					ResourceBundle.getBundle(BASE_BUNDLE_PATH));
 			
 			Stage stage = new Stage(StageStyle.DECORATED);
-			stage.setTitle("User profile");
+			stage.setTitle(USER_PROFILE_WINDOW_TITLE);
 			stage.setScene(new Scene((Pane) loader.load()));
 			UserProfileController controller = loader.<UserProfileController>getController();
 			controller.initData(resultTable.getSelectionModel().getSelectedItem());
+			stage.setMinWidth(600);
+			stage.setMinHeight(500);
 			stage.initModality(Modality.APPLICATION_MODAL);
 			stage.setOnHidden(e -> searchButtonAction());
 			stage.setOnHidden(e -> userLogin.setText(""));

@@ -1,5 +1,10 @@
 package com.starterkit.javafx.dataprovider.impl;
 
+import static com.starterkit.javafx.ApplicationProperties.DELETE_USER_REST_SERVICE_URL;
+import static com.starterkit.javafx.ApplicationProperties.FAILED_HTTP_ERROR_CODE_MESSAGE;
+import static com.starterkit.javafx.ApplicationProperties.FIND_USERS_REST_SERVICE_URL;
+import static com.starterkit.javafx.ApplicationProperties.UPDATE_USER_REST_SERVICE_URL;
+
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -22,7 +27,7 @@ public class UsersDataProviderImpl implements UsersDataProvider {
 	@Override
 	public Collection<UserVO> findUsers(String login, String name, String surname) throws Exception{
 
-		String url = "http://localhost:8090/user/search/";
+		String url = FIND_USERS_REST_SERVICE_URL;
 
 		if (login == null) {
 			login = "";
@@ -41,6 +46,7 @@ public class UsersDataProviderImpl implements UsersDataProvider {
 
 		ObjectMapper mapper = new ObjectMapper();
 
+		
 		List<UserVO> usersVO = new ArrayList<UserVO>();
 			try {
 				usersVO = mapper.readValue(jsonResult, new TypeReference<List<UserVO>>() {
@@ -62,7 +68,7 @@ public class UsersDataProviderImpl implements UsersDataProvider {
 
 		String idParam = Long.toString(user.getId());
 
-			URL url = new URL("http://localhost:8090/user/");
+			URL url = new URL(DELETE_USER_REST_SERVICE_URL);
 
 			Client client = Client.create();
 			WebResource webResource = client.resource(url + idParam);
@@ -70,7 +76,7 @@ public class UsersDataProviderImpl implements UsersDataProvider {
 			ClientResponse response = webResource.type("application/json").delete(ClientResponse.class);
 
 			if (response.getStatus() != 200) {
-				throw new RuntimeException("Failed : HTTP error code : " + response.getStatus());
+				throw new RuntimeException(FAILED_HTTP_ERROR_CODE_MESSAGE + response.getStatus());
 			}
 
 		return idParam;
@@ -82,7 +88,7 @@ public class UsersDataProviderImpl implements UsersDataProvider {
 
 		UserVO userVO = new UserVO();
 
-			String url = "http://localhost:8090/user";
+			String url = UPDATE_USER_REST_SERVICE_URL;
 
 			ObjectMapper mapper = new ObjectMapper();
 			Client client = Client.create();
@@ -94,7 +100,7 @@ public class UsersDataProviderImpl implements UsersDataProvider {
 			userVO = response.getEntity(UserVO.class);
 
 			if (response.getStatus() != 200) {
-				throw new RuntimeException("Failed : HTTP error code : " + response.getStatus());
+				throw new RuntimeException(FAILED_HTTP_ERROR_CODE_MESSAGE + response.getStatus());
 			}
 
 		return userVO;
@@ -105,7 +111,7 @@ public class UsersDataProviderImpl implements UsersDataProvider {
 
 		UserVO userVO = new UserVO();
 
-			String url = "http://localhost:8090/user/" + login;
+			String url = DELETE_USER_REST_SERVICE_URL + login;
 
 			Client client = Client.create();
 			WebResource webResource = client.resource(url);

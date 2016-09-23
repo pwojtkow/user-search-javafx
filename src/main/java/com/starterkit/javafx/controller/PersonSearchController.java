@@ -47,7 +47,6 @@ import javafx.util.StringConverter;
  * specific points in time.
  * </p>
  *
- * @author Leszek
  */
 public class PersonSearchController {
 
@@ -73,10 +72,6 @@ public class PersonSearchController {
 	@FXML
 	private URL location;
 
-	/**
-	 * JavaFX injects an object defined in FXML with the same "fx:id" as the
-	 * variable name.
-	 */
 	@FXML
 	private TextField nameField;
 

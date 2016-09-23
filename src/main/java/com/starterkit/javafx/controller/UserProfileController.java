@@ -1,22 +1,21 @@
 package com.starterkit.javafx.controller;
 
-import java.util.ArrayList;
-import java.util.Collection;
+import static com.starterkit.javafx.ApplicationProperties.ERROR_WINDOW_TITLE;
+import static com.starterkit.javafx.ApplicationProperties.FAILED_TO_READ_USER_DATA_MESSAGE;
 
 import com.starterkit.javafx.dataprovider.UsersDataProvider;
 import com.starterkit.javafx.dataprovider.data.UserVO;
 
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
+import javafx.scene.control.Button;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
-import javafx.scene.control.Alert.AlertType;
 import javafx.stage.Stage;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Button;
 
 public class UserProfileController {
-
 	
 	@FXML 
 	private TextField login;
@@ -49,12 +48,20 @@ public class UserProfileController {
 	
 	private final UsersDataProvider usersDataProvider = UsersDataProvider.INSTANCE;
 	
+	
+	@FXML
+	private void initialize() {
+		lifeMotto.setWrapText(true);
+		aboutMe.setWrapText(true);
+		
+	}
+	
 	@FXML 
 	private void cancelButtonAction() {
 		Stage stage = (Stage) cancelButton.getScene().getWindow();
 		stage.close();
 	}
-
+	
 	@FXML 
 	private void saveButtonAction() {
 		Task<UserVO> savingTask = new Task<UserVO>() {
@@ -137,9 +144,8 @@ public class UserProfileController {
 			@Override
 			protected void failed() {
 				Alert alert = new Alert(AlertType.ERROR);
-				alert.setTitle("Error!");
-				alert.setHeaderText(null);
-				alert.setContentText("Failed to read user data");
+				alert.setTitle(ERROR_WINDOW_TITLE);
+				alert.setContentText(FAILED_TO_READ_USER_DATA_MESSAGE);
 
 				alert.showAndWait();
 				
